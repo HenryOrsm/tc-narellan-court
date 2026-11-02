@@ -1,20 +1,4 @@
-[  {
-    "ref": "NFC-2026-0006",
-    "title": "test",
-    "type": "Civil claim",
-    "status": "Open",
-    "filed": "2026-11-02",
-    "judge": "og_gamerTNT",
-    "whenLabel": "Next hearing",
-    "when": "2026-11-02",
-    "outcome": "test",
-    "doc": [
-      {
-        "t": "p",
-        "x": "test"
-      }
-    ]
-  },
+[
   {
     "ref": "NFC-2026-1102-VF",
     "title": "Cease and Desist Notice to Trainfan3714",
@@ -180,7 +164,7 @@
     "type": "Civil claim",
     "status": "Decided",
     "filed": "2026-08-14",
-    "judge": "Justice Vane",
+    "judge": "og_gamerTNT",
     "whenLabel": "Decided",
     "when": "2026-09-02",
     "outcome": "Judgment for the plaintiff. The defendant must return 12 diamonds within 7 days."
@@ -191,7 +175,7 @@
     "type": "Property dispute",
     "status": "Open",
     "filed": "2026-10-19",
-    "judge": "Chief Justice Marrow",
+    "judge": "og_gamerTNT",
     "whenLabel": "Next hearing",
     "when": "2026-11-08",
     "outcome": "Hearing set. Both parties have submitted their evidence to the Clerk."
@@ -202,7 +186,7 @@
     "type": "Rule violation",
     "status": "Appealed",
     "filed": "2026-09-11",
-    "judge": "Justice Hale",
+    "judge": "og_gamerTNT",
     "whenLabel": "Appeal lodged",
     "when": "2026-10-12",
     "outcome": "The Article I finding is under review by the full bench."
@@ -213,7 +197,7 @@
     "type": "Civil claim",
     "status": "Dismissed",
     "filed": "2026-09-28",
-    "judge": "Justice Vane",
+    "judge": "og_gamerTNT",
     "whenLabel": "Dismissed",
     "when": "2026-10-05",
     "outcome": "Dismissed for lack of evidence. May be refiled with screenshots of the trade."
@@ -224,7 +208,7 @@
     "type": "Property dispute",
     "status": "Decided",
     "filed": "2026-10-02",
-    "judge": "Chief Justice Marrow",
+    "judge": "og_gamerTNT",
     "whenLabel": "Decided",
     "when": "2026-10-21",
     "outcome": "Title confirmed to the registered owner. The neighbouring claim is struck."

@@ -185,7 +185,7 @@ textarea { min-height: 112px; resize: vertical; }
 .group-label { font: 600 .75rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--teal); margin: 0 0 4px; }
 .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 32px; margin-bottom: 36px; }
 .person { display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); min-width: 0; }
-.person svg { width: 52px; height: 52px; flex: none; border-radius: 4px; border: 1px solid var(--line-strong); shape-rendering: crispEdges; }
+.person svg, .person img.head { width: 52px; height: 52px; flex: none; border-radius: 4px; border: 1px solid var(--line-strong); shape-rendering: crispEdges; image-rendering: pixelated; }
 .person div { min-width: 0; }
 .person b { display: block; font-family: var(--mono); font-weight: 500; font-size: .95rem; overflow-wrap: anywhere; }
 .person em { display: block; font-style: normal; font-size: .82rem; font-weight: 600; color: var(--teal); margin-bottom: 2px; }
@@ -306,12 +306,12 @@ footer { margin-top: 0; }
     <div class="wrap">
       <div class="section-head">
         <h2>Judges &amp; staff</h2>
-        <p>The people who hear cases and keep the register.</p>
+        <p>The people who lead Narellan and hear cases in its court.</p>
       </div>
+      <p class="group-label">Head of state and government</p>
+      <div class="people" id="gov-list"></div>
       <p class="group-label">The bench</p>
       <div class="people" id="bench-list"></div>
-      <p class="group-label">Court officers</p>
-      <div class="people" id="officer-list"></div>
     </div>
   </section>
 
@@ -468,22 +468,18 @@ var NOTICE = [
 ];
 var CASES = [
   { ref: 'NFC-2026-1102-VF', title: 'Cease and Desist Notice to Trainfan3714', type: 'Cease and desist notice', status: 'Issued', filed: '2026-11-02', judge: 'Office of the Chief Justice', whenLabel: 'Issued', when: '2026-11-02', outcome: 'Mr Falsetta is directed to stop scheduling community events at times that exclude Narellan citizens and to give a written explanation for the 8:00 AM Monday Halloween event. Further proceedings may follow if he does not comply.', doc: NOTICE },
-  { ref: 'NFC-2026-0001', title: 'Alder_Wynn v. Copperline Traders', type: 'Civil claim', status: 'Decided', filed: '2026-08-14', judge: 'Justice Vane', whenLabel: 'Decided', when: '2026-09-02', outcome: 'Judgment for the plaintiff. The defendant must return 12 diamonds within 7 days.' },
-  { ref: 'NFC-2026-0002', title: 'Pixelgrove Council v. Torrin_Vale', type: 'Property dispute', status: 'Open', filed: '2026-10-19', judge: 'Chief Justice Marrow', whenLabel: 'Next hearing', when: '2026-11-08', outcome: 'Hearing set. Both parties have submitted their evidence to the Clerk.' },
-  { ref: 'NFC-2026-0003', title: 'Rowan_Ash v. Basalt Barons', type: 'Rule violation', status: 'Appealed', filed: '2026-09-11', judge: 'Justice Hale', whenLabel: 'Appeal lodged', when: '2026-10-12', outcome: 'The Article I finding is under review by the full bench.' },
-  { ref: 'NFC-2026-0004', title: 'Marlow_Kade v. Ender Exchange', type: 'Civil claim', status: 'Dismissed', filed: '2026-09-28', judge: 'Justice Vane', whenLabel: 'Dismissed', when: '2026-10-05', outcome: 'Dismissed for lack of evidence. May be refiled with screenshots of the trade.' },
-  { ref: 'NFC-2026-0005', title: 'In re: Lot 14, Cobble Row', type: 'Property dispute', status: 'Decided', filed: '2026-10-02', judge: 'Chief Justice Marrow', whenLabel: 'Decided', when: '2026-10-21', outcome: 'Title confirmed to the registered owner. The neighbouring claim is struck.' }
+  { ref: 'NFC-2026-0001', title: 'Alder_Wynn v. Copperline Traders', type: 'Civil claim', status: 'Decided', filed: '2026-08-14', judge: 'og_gamerTNT', whenLabel: 'Decided', when: '2026-09-02', outcome: 'Judgment for the plaintiff. The defendant must return 12 diamonds within 7 days.' },
+  { ref: 'NFC-2026-0002', title: 'Pixelgrove Council v. Torrin_Vale', type: 'Property dispute', status: 'Open', filed: '2026-10-19', judge: 'og_gamerTNT', whenLabel: 'Next hearing', when: '2026-11-08', outcome: 'Hearing set. Both parties have submitted their evidence to the Clerk.' },
+  { ref: 'NFC-2026-0003', title: 'Rowan_Ash v. Basalt Barons', type: 'Rule violation', status: 'Appealed', filed: '2026-09-11', judge: 'og_gamerTNT', whenLabel: 'Appeal lodged', when: '2026-10-12', outcome: 'The Article I finding is under review by the full bench.' },
+  { ref: 'NFC-2026-0004', title: 'Marlow_Kade v. Ender Exchange', type: 'Civil claim', status: 'Dismissed', filed: '2026-09-28', judge: 'og_gamerTNT', whenLabel: 'Dismissed', when: '2026-10-05', outcome: 'Dismissed for lack of evidence. May be refiled with screenshots of the trade.' },
+  { ref: 'NFC-2026-0005', title: 'In re: Lot 14, Cobble Row', type: 'Property dispute', status: 'Decided', filed: '2026-10-02', judge: 'og_gamerTNT', whenLabel: 'Decided', when: '2026-10-21', outcome: 'Title confirmed to the registered owner. The neighbouring claim is struck.' }
+];
+var GOV = [
+  { name: 'HenryOrsm', role: 'King', note: 'Head of state of Narellan.' },
+  { name: 'TheSlushinator', role: 'Prime Minister', note: 'Leads the government of Narellan.' }
 ];
 var BENCH = [
-  { name: 'Aldous_Marrow', role: 'Chief Justice', note: 'Presides over full-bench appeals and signs every final ruling.' },
-  { name: 'Isolde_Vane', role: 'Justice', note: 'Hears civil claims and property disputes.' },
-  { name: 'Corvin_Hale', role: 'Justice', note: 'Hears rule-violation matters.' }
-];
-var OFFICERS = [
-  { name: 'Wren_Calloway', role: 'Clerk of Court', note: 'Assigns reference numbers and keeps the register.' },
-  { name: 'Tobin_Rusk', role: 'Bailiff', note: 'Keeps order in the courthouse and serves notices.' },
-  { name: 'Maren_Doyle', role: 'Prosecutor', note: 'Brings cases referred by server staff.' },
-  { name: 'Elias_Thorne', role: 'Public Defender', note: 'Represents any player who asks, at no cost.' }
+  { name: 'og_gamerTNT', role: 'Judge', note: 'Hears and decides the cases brought before the court.' }
 ];
 var RULES = [
   { no: 'Article I', title: 'Griefing and property', body: 'Destroying, altering or claiming another player’s build without permission is griefing. Land claims must be registered with the Clerk to be enforceable.' },
@@ -597,13 +593,31 @@ function avatar(name) {
   });
   return '<svg viewBox="0 0 8 8" aria-hidden="true">' + r + '</svg>';
 }
-function people(list, target) {
-  $(target).innerHTML = list.map(function (p) {
-    return '<div class="person">' + avatar(p.name) + '<div><em>' + esc(p.role) + '</em><b>' + esc(p.name) + '</b><span>' + esc(p.note) + '</span></div></div>';
-  }).join('');
+/* Real skin heads load by username. If a service is down or the name has no skin, the pixel head above is used instead. */
+function headImg(name) {
+  return '<img class="head" data-name="' + esc(name) + '" data-try="0" src="https://mc-heads.net/avatar/' + encodeURIComponent(name) + '/104" alt="" width="52" height="52" referrerpolicy="no-referrer">';
 }
+function headFail(img) {
+  var n = +img.getAttribute('data-try'), name = img.getAttribute('data-name');
+  if (n === 0) {
+    img.setAttribute('data-try', '1');
+    img.src = 'https://minotar.net/avatar/' + encodeURIComponent(name) + '/104';
+  } else if (img.parentNode) {
+    img.insertAdjacentHTML('afterend', avatar(name));
+    img.remove();
+  }
+}
+function people(list, target) {
+  var box = $(target);
+  box.innerHTML = list.map(function (p) {
+    return '<div class="person">' + headImg(p.name) + '<div><em>' + esc(p.role) + '</em><b>' + esc(p.name) + '</b><span>' + esc(p.note) + '</span></div></div>';
+  }).join('');
+  box.querySelectorAll('img.head').forEach(function (img) {
+    img.addEventListener('error', function () { headFail(img); });
+  });
+}
+people(GOV, 'gov-list');
 people(BENCH, 'bench-list');
-people(OFFICERS, 'officer-list');
 
 /* ---- rules ---- */
 $('rules-list').innerHTML = RULES.map(function (r, i) {
