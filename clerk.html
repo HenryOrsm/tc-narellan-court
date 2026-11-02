@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Clerk's Desk</title>
+<link rel="icon" href="favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Text:wght@400;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f2f6f7; --surface: #ffffff; --field: #f8fbfc; --ink: #1d2529; --muted: #55636a;
+  --line: #d5dee2; --line-strong: #aebbc1; --teal: #176b80; --on-teal: #ffffff;
+  --rib-teal: #1b7a8f; --rib-red: #b3302f; --rib-slate: #4a4f55; --err: #a82b2b; --warn: #85560a;
+  --display: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12181b; --surface: #1a2125; --field: #12181b; --ink: #e7eef0; --muted: #98a8af;
+    --line: #2c383e; --line-strong: #46565d; --teal: #5bbad0; --on-teal: #0c191d;
+    --rib-slate: #6c757d; --err: #ff8c88; --warn: #f0c36a; color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); }
+[hidden] { display: none !important; }
+h1, h2 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; }
+a { color: var(--teal); }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.wrap { max-width: 860px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.tri { height: 5px; background: linear-gradient(90deg, var(--rib-teal) 0 33.34%, var(--rib-red) 33.34% 66.67%, var(--rib-slate) 66.67% 100%); }
+header { background: var(--surface); border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 12px; font: 700 1.05rem var(--display); }
+.brand span { display: grid; place-items: center; width: 40px; height: 40px; background: #f8f5ea; border: 1px solid #d9d1ba; border-radius: 6px; }
+.brand img { width: 32px; height: auto; display: block; }
+main { padding-block: clamp(28px, 5vw, 56px); }
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 10px; }
+.lede { color: var(--muted); max-width: 60ch; margin: 0 0 28px; }
+.steps { margin: 0 0 28px; padding-left: 1.3rem; color: var(--muted); max-width: 66ch; }
+.steps li { margin-bottom: 6px; }
+.steps b { color: var(--ink); }
+form { display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: clamp(16px, 3vw, 28px); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+.field { display: grid; gap: 6px; min-width: 0; align-content: start; }
+label { font-size: .85rem; font-weight: 600; }
+small { color: var(--muted); font-size: .78rem; }
+input, select, textarea { width: 100%; font: 400 1rem var(--body); color: var(--ink); background: var(--field); border: 1px solid var(--line-strong); border-radius: 4px; padding: 11px 13px; }
+input.mono { font-family: var(--mono); letter-spacing: .03em; }
+textarea { min-height: 96px; resize: vertical; }
+.btn { appearance: none; border: 1px solid var(--teal); background: var(--teal); color: var(--on-teal); font: 600 .95rem var(--body); padding: 11px 22px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.quiet { background: transparent; color: var(--teal); }
+.msg-err { color: var(--err); font-weight: 500; margin: 0; }
+.msg-warn { color: var(--warn); font-weight: 500; margin: 0; }
+.out { display: grid; gap: 12px; margin-top: 4px; }
+.out pre { margin: 0; padding: 14px; background: var(--bg); border: 1px dashed var(--line-strong); border-radius: 4px; font: 400 .82rem/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; user-select: all; max-height: 360px; overflow: auto; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-size: .85rem; color: var(--muted); }
+.foot { padding-block: 24px; color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand"><span><img src="crest.png" alt=""></span>Narellan Federal Court</div>
+    <a href="./">Back to the public site</a>
+  </div>
+</header>
+<div class="tri" aria-hidden="true"></div>
+<main>
+  <div class="wrap">
+    <h1>Clerk's Desk</h1>
+    <p class="lede">Turn an approved filing into a public case entry. This page only writes text for you to paste. It cannot publish anything by itself.</p>
+    <ol class="steps">
+      <li><b>Check the filing</b> from the Discord. Everything you publish is public.</li>
+      <li><b>Fill in the form</b> below. The next reference number is picked for you.</li>
+      <li><b>Copy the entry</b>, then open <a id="edit-link" href="https://github.com/HenryOrsm/tc-narellan-court/edit/main/cases.json" target="_blank" rel="noopener">cases.json in GitHub</a>.</li>
+      <li><b>Paste it straight after the first <code>[</code></b> at the very top, then click <b>Commit changes</b>. The site updates in a minute or two.</li>
+      <li><b>Reply to the filer</b> with their reference number.</li>
+    </ol>
+
+    <form id="clerk-form" novalidate>
+      <div class="pair">
+        <div class="field">
+          <label for="c-ref">Reference number</label>
+          <input id="c-ref" class="mono" type="text" spellcheck="false">
+          <small id="c-ref-note">Loading the register to pick the next number.</small>
+        </div>
+        <div class="field">
+          <label for="c-filed">Date filed</label>
+          <input id="c-filed" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="c-title">Case name</label>
+        <input id="c-title" type="text" placeholder="e.g. Alder_Wynn v. Copperline Traders">
+      </div>
+      <div class="pair">
+        <div class="field">
+          <label for="c-type">Type</label>
+          <input id="c-type" type="text" list="c-types" value="Civil claim">
+          <datalist id="c-types"><option value="Civil claim"><option value="Property dispute"><option value="Rule violation"><option value="Appeal"><option value="Cease and desist notice"></datalist>
+        </div>
+        <div class="field">
+          <label for="c-status">Status</label>
+          <select id="c-status">
+            <option>Open</option><option>Decided</option><option>Appealed</option><option>Dismissed</option><option>Issued</option>
+          </select>
+        </div>
+      </div>
+      <div class="pair">
+        <div class="field">
+          <label for="c-judge">Judge</label>
+          <input id="c-judge" type="text" placeholder="e.g. Justice Vane">
+        </div>
+        <div class="field">
+          <label for="c-when">Key date</label>
+          <input id="c-when" type="date">
+          <small id="c-when-note">The next hearing date. Leave blank if not set yet.</small>
+        </div>
+      </div>
+      <div class="field">
+        <label for="c-outcome">Latest on this case</label>
+        <textarea id="c-outcome" placeholder="One or two sentences shown on the lookup result."></textarea>
+      </div>
+      <div class="field">
+        <label for="c-full">Full text (optional)</label>
+        <textarea id="c-full" placeholder="Paste a full ruling or notice. Leave a blank line between paragraphs."></textarea>
+        <small>Shows as a "Read the full notice" section on the case.</small>
+      </div>
+      <p class="msg-err" id="c-err" role="alert" hidden></p>
+      <p class="msg-warn" id="c-warn" hidden></p>
+      <div><button class="btn" type="submit">Write the entry</button></div>
+      <div class="out" id="c-out" hidden>
+        <pre id="c-pre"></pre>
+        <div class="actions">
+          <button class="btn quiet" type="button" id="c-copy">Copy entry</button>
+          <a class="btn" id="c-edit" href="https://github.com/HenryOrsm/tc-narellan-court/edit/main/cases.json" target="_blank" rel="noopener">Open cases.json</a>
+          <span id="c-copy-msg" aria-live="polite">Paste right after the first [ at the top of the file.</span>
+        </div>
+        <small id="c-link"></small>
+      </div>
+    </form>
+  </div>
+</main>
+<div class="tri" aria-hidden="true"></div>
+<div class="wrap foot">This page is not linked from the public site, but anyone with the address can open it. It cannot change the register on its own.</div>
+
+<script>
+var $ = function (id) { return document.getElementById(id); };
+var CASES = [];
+var LABELS = { Open: 'Next hearing', Decided: 'Decided', Appealed: 'Appeal lodged', Dismissed: 'Dismissed', Issued: 'Issued' };
+var NOTES = { Open: 'The next hearing date. Leave blank if not set yet.', Decided: 'The date of the ruling.', Appealed: 'The date the appeal was lodged.', Dismissed: 'The date it was dismissed.', Issued: 'The date it was issued.' };
+
+function pad(n) { return String(n).padStart(4, '0'); }
+function nextRef(list) {
+  var y = new Date().getFullYear(), max = 0;
+  list.forEach(function (c) {
+    var m = /^NFC-(\d{4})-(\d{4})$/.exec(c.ref || '');
+    if (m && +m[1] === y && +m[2] > max) max = +m[2];
+  });
+  return 'NFC-' + y + '-' + pad(max + 1);
+}
+function normRef(s) {
+  var t = String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  var m = t.match(/^NFC(\d{4})(\d{4})([A-Z]{1,3})?$/);
+  return m ? 'NFC-' + m[1] + '-' + m[2] + (m[3] ? '-' + m[3] : '') : null;
+}
+
+$('c-filed').value = new Date().toLocaleDateString('en-CA');
+function syncStatus() {
+  var s = $('c-status').value;
+  $('c-when-note').textContent = NOTES[s];
+}
+$('c-status').addEventListener('change', syncStatus);
+syncStatus();
+
+fetch('cases.json', { cache: 'no-cache' })
+  .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function (d) {
+    CASES = Array.isArray(d) ? d : [];
+    $('c-ref').value = nextRef(CASES);
+    $('c-ref-note').textContent = 'Picked from the ' + CASES.length + ' cases already in the register. You can change it.';
+  })
+  .catch(function () {
+    $('c-ref').value = nextRef([]);
+    $('c-ref-note').textContent = 'Could not read cases.json, so check this number against the register before you use it.';
+  });
+
+$('clerk-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var err = $('c-err'), warn = $('c-warn');
+  var ref = normRef($('c-ref').value), title = $('c-title').value.trim(), outcome = $('c-outcome').value.trim();
+  var problem = '';
+  if (!ref) problem = 'The reference number should look like NFC-2026-0006.';
+  else if (!title) problem = 'Enter the case name.';
+  else if (!outcome) problem = 'Write one or two sentences for "Latest on this case".';
+  if (problem) { err.textContent = problem; err.hidden = false; $('c-out').hidden = true; return; }
+  err.hidden = true;
+  var dup = CASES.some(function (c) { return c.ref === ref; });
+  warn.hidden = !dup;
+  if (dup) warn.textContent = ref + ' is already in the register. Pick a different number unless you mean to add a second entry.';
+
+  var status = $('c-status').value;
+  var entry = { ref: ref, title: title, type: $('c-type').value.trim() || 'Civil claim', status: status };
+  if ($('c-filed').value) entry.filed = $('c-filed').value;
+  if ($('c-judge').value.trim()) entry.judge = $('c-judge').value.trim();
+  entry.whenLabel = LABELS[status];
+  if ($('c-when').value) entry.when = $('c-when').value;
+  entry.outcome = outcome;
+  var full = $('c-full').value.trim();
+  if (full) {
+    entry.doc = full.split(/\n\s*\n/).map(function (p) { return { t: 'p', x: p.replace(/\s*\n\s*/g, ' ').trim() }; }).filter(function (b) { return b.x; });
+  }
+  var text = JSON.stringify(entry, null, 2).split('\n').map(function (l) { return '  ' + l; }).join('\n') + ',';
+  $('c-pre').textContent = text;
+  $('c-out').hidden = false;
+  $('c-copy-msg').textContent = 'Paste right after the first [ at the top of the file.';
+  $('c-link').textContent = 'Direct link for the filer: add #' + ref + ' to the end of the site address.';
+});
+
+$('c-copy').addEventListener('click', function () {
+  var pre = $('c-pre'), msg = $('c-copy-msg');
+  function pick() {
+    var r = document.createRange(); r.selectNodeContents(pre);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    msg.textContent = 'Selected. Press Ctrl+C or Cmd+C to copy.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(pre.textContent).then(function () { msg.textContent = 'Copied. Now paste it into cases.json.'; }, pick);
+  } else { pick(); }
+});
+</script>
+</body>
+</html>

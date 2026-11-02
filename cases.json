@@ -1,0 +1,216 @@
+[
+  {
+    "ref": "NFC-2026-1102-VF",
+    "title": "Cease and Desist Notice to Trainfan3714",
+    "type": "Cease and desist notice",
+    "status": "Issued",
+    "filed": "2026-11-02",
+    "judge": "Office of the Chief Justice",
+    "whenLabel": "Issued",
+    "when": "2026-11-02",
+    "outcome": "Mr Falsetta is directed to stop scheduling community events at times that exclude Narellan citizens and to give a written explanation for the 8:00 AM Monday Halloween event. Further proceedings may follow if he does not comply.",
+    "doc": [
+      {
+        "t": "org",
+        "x": "THE NARELLAN FEDERAL COURT"
+      },
+      {
+        "t": "sub",
+        "x": "OFFICE OF THE CHIEF JUSTICE"
+      },
+      {
+        "t": "title",
+        "x": "FORMAL CEASE AND DESIST NOTICE"
+      },
+      {
+        "t": "meta",
+        "x": [
+          [
+            "Case Reference",
+            "NFC-2026-1102-VF"
+          ],
+          [
+            "Date",
+            "2 November 2026"
+          ],
+          [
+            "To",
+            "Vincent \"Trainfan3714\" Falsetta"
+          ],
+          [
+            "From",
+            "The Narellan Federal Court"
+          ],
+          [
+            "Subject",
+            "Systematic Discrimination Against the Citizens of Narellan Through Deliberately Inaccessible Event Scheduling"
+          ]
+        ]
+      },
+      {
+        "t": "h",
+        "x": "NOTICE TO CEASE AND DESIST"
+      },
+      {
+        "t": "p",
+        "x": "Dear Mr Falsetta,"
+      },
+      {
+        "t": "p",
+        "x": "The Narellan Federal Court hereby issues this formal Cease and Desist Notice concerning your repeated conduct in organising community events at times that render participation by the citizens of Narellan virtually impossible."
+      },
+      {
+        "t": "p",
+        "x": "The Court has received substantial complaints regarding your organisation of events, most notably the recent Halloween event, which was scheduled for 8:00 AM on a Monday morning."
+      },
+      {
+        "t": "p",
+        "x": "The Court considers this scheduling decision particularly egregious."
+      },
+      {
+        "t": "p",
+        "x": "By scheduling a community event at such an unreasonable hour on a weekday, you effectively excluded almost the entire population of Narellan from participating in what should have been an inclusive community occasion."
+      },
+      {
+        "t": "p",
+        "x": "The Court further notes that:"
+      },
+      {
+        "t": "ol",
+        "x": [
+          "The overwhelming majority of Narellan citizens were unable to attend the aforementioned Halloween event.",
+          "No reasonable consideration appears to have been given to the availability of Narellan residents.",
+          "This incident forms part of a broader pattern of event scheduling that disproportionately disadvantages the Narellan population.",
+          "Your actions have caused considerable outrage among Narellan citizens and have undermined the principles of community participation and equality."
+        ]
+      },
+      {
+        "t": "h",
+        "x": "FORMAL DEMANDS"
+      },
+      {
+        "t": "p",
+        "x": "The Narellan Federal Court hereby DEMANDS that Mr Falsetta:"
+      },
+      {
+        "t": "ol",
+        "x": [
+          "Immediately cease organising events in a manner that systematically excludes Narellan citizens.",
+          "Provide reasonable consideration to the schedules and availability of Narellan residents when arranging future events.",
+          "Refrain from scheduling community-wide events at unreasonable times, including but not limited to weekday mornings.",
+          "Provide a formal written explanation for the decision to schedule the Halloween event at 8:00 AM on a Monday.",
+          "Commit to ensuring that future community events are accessible to all participating populations, irrespective of their place of residence."
+        ]
+      },
+      {
+        "t": "h",
+        "x": "CONSEQUENCES OF NON-COMPLIANCE"
+      },
+      {
+        "t": "p",
+        "x": "Should you fail to comply with the demands outlined in this notice, the Narellan Federal Court reserves the right to initiate further proceedings, including but not limited to:"
+      },
+      {
+        "t": "ul",
+        "x": [
+          "Formal condemnation by the Narellan Federal Court.",
+          "A public declaration of your failure to uphold community inclusion.",
+          "Referral of the matter to the Narellan Federal Government for consideration of further action."
+        ]
+      },
+      {
+        "t": "h",
+        "x": "FINAL STATEMENT"
+      },
+      {
+        "t": "p",
+        "x": "The Narellan Federal Court wishes to make its position abundantly clear: the citizens of Narellan are not second-class participants in community life, nor should they be expected to rearrange their entire Monday morning schedules to accommodate your frankly questionable event-planning abilities."
+      },
+      {
+        "t": "p",
+        "x": "Scheduling a Halloween event for 8:00 AM on a Monday is not merely inconsiderate. It is an achievement in administrative incompetence."
+      },
+      {
+        "t": "p",
+        "x": "The Court has little interest in entertaining further excuses, justifications, or attempts to pass this off as a simple scheduling oversight."
+      },
+      {
+        "t": "p",
+        "x": "Get your act together, Mr Falsetta. Narellan has had quite enough of your nonsense."
+      },
+      {
+        "t": "p",
+        "x": "We trust that this matter is now sufficiently clear. Frankly, we would prefer not to have to explain basic calendar literacy to you again."
+      },
+      {
+        "t": "p",
+        "x": "Yours in the pursuit of justice,"
+      },
+      {
+        "t": "sign",
+        "x": "THE OFFICE OF THE CHIEF JUSTICE",
+        "y": "Narellan Federal Court"
+      },
+      {
+        "t": "motto",
+        "x": "FIAT JUSTITIA.",
+        "y": "Let justice be done."
+      }
+    ]
+  },
+  {
+    "ref": "NFC-2026-0001",
+    "title": "Alder_Wynn v. Copperline Traders",
+    "type": "Civil claim",
+    "status": "Decided",
+    "filed": "2026-08-14",
+    "judge": "Justice Vane",
+    "whenLabel": "Decided",
+    "when": "2026-09-02",
+    "outcome": "Judgment for the plaintiff. The defendant must return 12 diamonds within 7 days."
+  },
+  {
+    "ref": "NFC-2026-0002",
+    "title": "Pixelgrove Council v. Torrin_Vale",
+    "type": "Property dispute",
+    "status": "Open",
+    "filed": "2026-10-19",
+    "judge": "Chief Justice Marrow",
+    "whenLabel": "Next hearing",
+    "when": "2026-11-08",
+    "outcome": "Hearing set. Both parties have submitted their evidence to the Clerk."
+  },
+  {
+    "ref": "NFC-2026-0003",
+    "title": "Rowan_Ash v. Basalt Barons",
+    "type": "Rule violation",
+    "status": "Appealed",
+    "filed": "2026-09-11",
+    "judge": "Justice Hale",
+    "whenLabel": "Appeal lodged",
+    "when": "2026-10-12",
+    "outcome": "The Article I finding is under review by the full bench."
+  },
+  {
+    "ref": "NFC-2026-0004",
+    "title": "Marlow_Kade v. Ender Exchange",
+    "type": "Civil claim",
+    "status": "Dismissed",
+    "filed": "2026-09-28",
+    "judge": "Justice Vane",
+    "whenLabel": "Dismissed",
+    "when": "2026-10-05",
+    "outcome": "Dismissed for lack of evidence. May be refiled with screenshots of the trade."
+  },
+  {
+    "ref": "NFC-2026-0005",
+    "title": "In re: Lot 14, Cobble Row",
+    "type": "Property dispute",
+    "status": "Decided",
+    "filed": "2026-10-02",
+    "judge": "Chief Justice Marrow",
+    "whenLabel": "Decided",
+    "when": "2026-10-21",
+    "outcome": "Title confirmed to the registered owner. The neighbouring claim is struck."
+  }
+]
