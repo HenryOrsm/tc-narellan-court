@@ -134,6 +134,12 @@ a { color: var(--teal); }
 .d-sign { margin-top: 1.4em; }
 .d-motto { text-align: center; margin-top: 1.6em; letter-spacing: .06em; }
 a.btn { text-decoration: none; display: inline-block; }
+.st-pending { color: var(--st-dismiss-fg); background: var(--st-dismiss-bg); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.sent { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--line-strong); border-left: 4px solid var(--rib-teal); border-radius: 4px; background: var(--bg); }
+.sent p { margin: 0; }
+.sent-label { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sent-ref { font: 500 1.6rem var(--mono); letter-spacing: .03em; overflow-wrap: anywhere; }
 .st-decided { color: var(--st-done-fg); background: var(--st-done-bg); }
 .st-appealed { color: var(--st-appeal-fg); background: var(--st-appeal-bg); }
 .st-dismissed { color: var(--st-dismiss-fg); background: var(--st-dismiss-bg); }
@@ -339,7 +345,7 @@ footer { margin-top: 0; }
     <div class="wrap">
       <div class="section-head">
         <h2>File a case or appeal</h2>
-        <p>Fill in the form to prepare your filing, then copy it and post it in the <a href="https://discord.gg/gGXYjhwMwG" target="_blank" rel="noopener">court Discord</a>.</p>
+        <p id="file-lede">Fill in the form to prepare your filing, then copy it and post it in the <a href="https://discord.gg/gGXYjhwMwG" target="_blank" rel="noopener">court Discord</a>.</p>
       </div>
       <div class="file-grid">
         <form class="filing" id="filing-form" novalidate>
@@ -381,8 +387,19 @@ footer { margin-top: 0; }
             <textarea id="f-ev" placeholder="Links to screenshots or clips, one per line."></textarea>
             <small>Screenshots should show chat or location with the time visible.</small>
           </div>
+          <div class="hp" aria-hidden="true"><label for="f-site">Leave this empty</label><input id="f-site" type="text" tabindex="-1" autocomplete="off"></div>
           <p class="msg-err" id="f-err" role="alert" hidden></p>
-          <div><button class="btn" type="submit">Prepare filing</button></div>
+          <div><button class="btn" type="submit" id="f-submit">Prepare filing</button></div>
+          <div class="sent" id="f-sent" role="status" hidden>
+            <p class="sent-label">Filing received</p>
+            <p class="sent-ref" id="f-ref"></p>
+            <p>Keep this reference number. A clerk will review your filing, and you can check on it any time with the case lookup at the top of the page.</p>
+            <div class="out-actions">
+              <button class="btn quiet" type="button" id="f-ref-copy">Copy number</button>
+              <a class="btn" id="f-ref-look" href="#lookup">Look it up</a>
+              <span id="f-ref-msg" aria-live="polite"></span>
+            </div>
+          </div>
           <div class="out" id="f-out" hidden>
             <pre id="f-pre"></pre>
             <div class="out-actions">
@@ -395,8 +412,8 @@ footer { margin-top: 0; }
         <div>
           <p class="group-label">What happens next</p>
           <ol class="steps">
-            <li><b>Post your filing in the Discord</b><span>The Clerk checks it and assigns a reference number.</span></li>
-            <li><b>Both parties are notified</b><span>The other player gets a copy and a chance to respond.</span></li>
+            <li><b>Submit your filing</b><span>You get a reference number straight away.</span></li>
+            <li><b>A clerk reviews it</b><span>Nothing is published until a clerk has approved it.</span></li>
             <li><b>A hearing date is set</b><span>A judge is assigned and the date is posted in the court channel.</span></li>
             <li><b>The ruling is published</b><span>Look it up above using your reference number.</span></li>
           </ol>
@@ -414,7 +431,28 @@ footer { margin-top: 0; }
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script>
+/* ---- Database connection. config.js holds the project address and public key; blank means manual mode. ---- */
+var CFG = window.NFC_CONFIG || {};
+var DB = CFG.url && CFG.key ? String(CFG.url).replace(/\/+$/, '') : '';
+function dbFetch(path, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({ apikey: CFG.key, 'Content-Type': 'application/json' }, opts.headers || {});
+  return fetch(DB + path, opts).then(function (r) {
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = t ? JSON.parse(t) : null; } catch (e) { d = null; }
+      if (!r.ok) {
+        var err = new Error((d && (d.message || d.error_description || d.msg)) || ('HTTP ' + r.status));
+        err.status = r.status;
+        throw err;
+      }
+      return d;
+    });
+  });
+}
+
 /* ---- Edit these lists to change the site's content ---- */
 var NOTICE = [
   { t: 'org', x: 'THE NARELLAN FEDERAL COURT' },
@@ -467,19 +505,15 @@ var NOTICE = [
   { t: 'motto', x: 'FIAT JUSTITIA.', y: 'Let justice be done.' }
 ];
 var CASES = [
-  { ref: 'NFC-2026-1102-VF', title: 'Cease and Desist Notice to Trainfan3714', type: 'Cease and desist notice', status: 'Issued', filed: '2026-11-02', judge: 'Office of the Chief Justice', whenLabel: 'Issued', when: '2026-11-02', outcome: 'Mr Falsetta is directed to stop scheduling community events at times that exclude Narellan citizens and to give a written explanation for the 8:00 AM Monday Halloween event. Further proceedings may follow if he does not comply.', doc: NOTICE },
-  { ref: 'NFC-2026-0001', title: 'Alder_Wynn v. Copperline Traders', type: 'Civil claim', status: 'Decided', filed: '2026-08-14', judge: 'og_gamerTNT', whenLabel: 'Decided', when: '2026-09-02', outcome: 'Judgment for the plaintiff. The defendant must return 12 diamonds within 7 days.' },
-  { ref: 'NFC-2026-0002', title: 'Pixelgrove Council v. Torrin_Vale', type: 'Property dispute', status: 'Open', filed: '2026-10-19', judge: 'og_gamerTNT', whenLabel: 'Next hearing', when: '2026-11-08', outcome: 'Hearing set. Both parties have submitted their evidence to the Clerk.' },
-  { ref: 'NFC-2026-0003', title: 'Rowan_Ash v. Basalt Barons', type: 'Rule violation', status: 'Appealed', filed: '2026-09-11', judge: 'og_gamerTNT', whenLabel: 'Appeal lodged', when: '2026-10-12', outcome: 'The Article I finding is under review by the full bench.' },
-  { ref: 'NFC-2026-0004', title: 'Marlow_Kade v. Ender Exchange', type: 'Civil claim', status: 'Dismissed', filed: '2026-09-28', judge: 'og_gamerTNT', whenLabel: 'Dismissed', when: '2026-10-05', outcome: 'Dismissed for lack of evidence. May be refiled with screenshots of the trade.' },
-  { ref: 'NFC-2026-0005', title: 'In re: Lot 14, Cobble Row', type: 'Property dispute', status: 'Decided', filed: '2026-10-02', judge: 'og_gamerTNT', whenLabel: 'Decided', when: '2026-10-21', outcome: 'Title confirmed to the registered owner. The neighbouring claim is struck.' }
+  { ref: 'NFC-2026-1102-VF', title: 'Cease and Desist Notice to Trainfan3714', type: 'Cease and desist notice', status: 'Issued', filed: '2026-11-02', judge: 'Office of the Chief Justice', whenLabel: 'Issued', when: '2026-11-02', outcome: 'Mr Falsetta is directed to stop scheduling community events at times that exclude Narellan citizens and to give a written explanation for the 8:00 AM Monday Halloween event. Further proceedings may follow if he does not comply.', doc: NOTICE }
 ];
 var GOV = [
   { name: 'HenryOrsm', role: 'King', note: 'Head of state of Narellan.' },
   { name: 'TheSlushinator', role: 'Prime Minister', note: 'Leads the government of Narellan.' }
 ];
 var BENCH = [
-  { name: 'og_gamerTNT', role: 'Judge', note: 'Hears and decides the cases brought before the court.' }
+  { name: 'og_gamerTNT', role: 'Judge', note: 'Hears and decides the cases brought before the court.' },
+  { name: 'superninjaboy09', role: 'Judge', note: 'Hears and decides the cases brought before the court.' }
 ];
 var RULES = [
   { no: 'Article I', title: 'Griefing and property', body: 'Destroying, altering or claiming another player’s build without permission is griefing. Land claims must be registered with the Clerk to be enforceable.' },
@@ -506,6 +540,14 @@ function normRef(s) {
 /* ---- case lookup ---- */
 var input = $('ref-input'), result = $('result');
 function showCase(c) {
+  if (c.pending) {
+    result.innerHTML =
+      '<div class="result-top"><span class="ref">' + esc(c.ref) + '</span><span class="pill st-pending">Pending</span></div>' +
+      '<h2 class="case-title">Filing under review</h2>' +
+      '<dl class="facts"><div><dt>Type</dt><dd>' + esc(c.type) + '</dd></div><div><dt>Filed</dt><dd>' + esc(c.filed ? fmtDate(c.filed) : 'Not recorded') + '</dd></div></dl>' +
+      '<div class="outcome"><strong>Latest on this case</strong>This filing has been received. A clerk is reviewing it, and the details will be published here once it is approved.</div>';
+    return;
+  }
   result.innerHTML =
     '<div class="result-top"><span class="ref">' + esc(c.ref) + '</span><span class="pill st-' + esc(c.status.toLowerCase()) + '">' + esc(c.status) + '</span></div>' +
     '<h2 class="case-title">' + esc(c.title) + '</h2>' +
@@ -539,10 +581,23 @@ function search(raw) {
   if (!String(raw).trim()) { showMsg('Enter a reference number to search.'); return; }
   if (!ref) { showMsg('That does not look like a reference number. References look like NFC-2026-0001.'); return; }
   var hit = CASES.filter(function (c) { return c.ref === ref; })[0];
-  if (!hit) { showMsg('No case found for ' + ref + '. Check the number and try again.'); return; }
   input.value = ref;
-  showCase(hit);
+  var mine = ++searchSeq;
+  if (hit) { showCase(hit); return; }
+  if (!DB) { showMsg('No case found for ' + ref + '. Check the number and try again.'); return; }
+  result.innerHTML = '<p class="hint">Searching the register...</p>';
+  dbFetch('/rest/v1/rpc/lookup_case', { method: 'POST', body: JSON.stringify({ p_ref: ref }) })
+    .then(function (d) {
+      if (mine !== searchSeq) return;
+      if (!d) { showMsg('No case found for ' + ref + '. Check the number and try again.'); return; }
+      showCase(d);
+    })
+    .catch(function () {
+      if (mine !== searchSeq) return;
+      showMsg('The register could not be reached. Try again in a moment.');
+    });
 }
+var searchSeq = 0;
 $('lookup-form').addEventListener('submit', function (e) { e.preventDefault(); search(input.value); });
 /* Cases live in cases.json next to this page. The list above is only a fallback if that file cannot load. */
 var FALLBACK = CASES;
@@ -555,6 +610,13 @@ function fromHash() {
 }
 window.addEventListener('hashchange', fromHash);
 function init(usedFallback) {
+  $('reg-note').hidden = !usedFallback;
+  if (!CASES.length) {
+    chips.innerHTML = '';
+    result.innerHTML = '<p class="hint">No cases have been published yet.</p>';
+    fromHash();
+    return;
+  }
   chips.innerHTML = '<span>Quick lookup</span>';
   CASES.slice(0, 3).forEach(function (c) {
     var b = document.createElement('button');
@@ -565,17 +627,25 @@ function init(usedFallback) {
   input.value = CASES[0].ref;
   search(CASES[0].ref);
   fromHash();
-  $('reg-note').hidden = !usedFallback;
 }
 result.innerHTML = '<p class="hint">Loading the case register...</p>';
-fetch('cases.json', { cache: 'no-cache' })
-  .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then(function (d) {
-    if (!Array.isArray(d) || !d.length) throw new Error('empty register');
-    CASES = d;
-    init(false);
-  })
-  .catch(function () { CASES = FALLBACK; init(true); });
+function fromFile() {
+  return fetch('cases.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (d) { if (!Array.isArray(d) || !d.length) throw new Error('empty register'); return d; });
+}
+function getCases() {
+  if (DB) {
+    return dbFetch('/rest/v1/public_cases?select=*&order=filed.desc,ref.desc&limit=50')
+      .then(function (d) { if (!Array.isArray(d)) throw new Error('bad register'); return { list: d, fallback: false }; })
+      .catch(function () { return fromFile().then(function (d) { return { list: d, fallback: true }; }); })
+      .catch(function () { return { list: FALLBACK, fallback: true }; });
+  }
+  return fromFile()
+    .then(function (d) { return { list: d, fallback: false }; })
+    .catch(function () { return { list: FALLBACK, fallback: true }; });
+}
+getCases().then(function (r) { CASES = r.list; init(r.fallback); });
 
 /* ---- pixel head avatars ---- */
 var HEAD = ['HHHHHHHH', 'HHHHHHHH', 'HSSSSSSH', 'SSSSSSSS', 'SWBSSBWS', 'SSSSSSSS', 'SSSMMSSS', 'SSSSSSSS'];
@@ -649,8 +719,48 @@ $('filing-form').addEventListener('submit', function (e) {
   if (date) lines.push('Date of incident: ' + fmtDate(date));
   lines.push('', 'What happened:', sum, '', 'Evidence:', ev || 'None attached');
   $('f-pre').textContent = lines.join('\n');
-  $('f-out').hidden = false;
-  $('f-copy-msg').textContent = 'Copy this, then post it in the court Discord to open your case.';
+  $('f-sent').hidden = true;
+  if (!DB) {
+    $('f-out').hidden = false;
+    $('f-copy-msg').textContent = 'Copy this, then post it in the court Discord to open your case.';
+    return;
+  }
+  if ($('f-site').value) return;
+  var btn = $('f-submit');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  $('f-out').hidden = true;
+  dbFetch('/rest/v1/rpc/file_case', {
+    method: 'POST',
+    body: JSON.stringify({ p_type: type, p_filer: you, p_defendant: them, p_incident: date || null, p_summary: sum, p_evidence: ev || null, p_orig: orig || null })
+  }).then(function (ref) {
+    $('f-ref').textContent = ref;
+    $('f-ref-msg').textContent = '';
+    $('f-sent').hidden = false;
+    ['f-you', 'f-them', 'f-date', 'f-sum', 'f-ev', 'f-orig'].forEach(function (id) { $(id).value = ''; });
+  }).catch(function (e) {
+    err.textContent = 'Your filing could not be sent (' + e.message + '). You can copy it below and post it in the court Discord instead.';
+    err.hidden = false;
+    $('f-out').hidden = false;
+    $('f-copy-msg').textContent = 'Copy this, then post it in the court Discord.';
+  }).then(function () {
+    btn.disabled = false; btn.textContent = 'Submit filing';
+  });
+});
+if (DB) {
+  $('f-submit').textContent = 'Submit filing';
+  $('file-lede').innerHTML = 'Fill in the form and submit it. You get a reference number straight away, and a clerk reviews the filing before anything is published. Questions? Ask in the <a href="https://discord.gg/gGXYjhwMwG" target="_blank" rel="noopener">court Discord</a>.';
+}
+$('f-ref-look').addEventListener('click', function () { var r = $('f-ref').textContent; input.value = r; search(r); });
+$('f-ref-copy').addEventListener('click', function () {
+  var r = $('f-ref').textContent, msg = $('f-ref-msg');
+  function pick() {
+    var rg = document.createRange(); rg.selectNodeContents($('f-ref'));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(rg);
+    msg.textContent = 'Selected. Press Ctrl+C or Cmd+C to copy.';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(r).then(function () { msg.textContent = 'Copied.'; }, pick);
+  } else { pick(); }
 });
 $('f-copy').addEventListener('click', function () {
   var pre = $('f-pre'), msg = $('f-copy-msg');
