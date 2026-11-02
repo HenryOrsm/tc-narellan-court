@@ -1,4 +1,20 @@
-[
+[  {
+    "ref": "NFC-2026-0006",
+    "title": "test",
+    "type": "Civil claim",
+    "status": "Open",
+    "filed": "2026-11-02",
+    "judge": "og_gamerTNT",
+    "whenLabel": "Next hearing",
+    "when": "2026-11-02",
+    "outcome": "test",
+    "doc": [
+      {
+        "t": "p",
+        "x": "test"
+      }
+    ]
+  },
   {
     "ref": "NFC-2026-1102-VF",
     "title": "Cease and Desist Notice to Trainfan3714",
