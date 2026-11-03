@@ -181,6 +181,9 @@ a.btn { text-decoration: none; display: inline-block; }
 .outcome { padding: 12px 14px; background: var(--bg); border-left: 3px solid var(--rib-teal); border-radius: 0 4px 4px 0; font-size: .95rem; }
 .outcome strong { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
 .msg-err { color: var(--err); font-weight: 500; }
+.share { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 14px; }
+.share .btn { padding: 8px 16px; font-size: .88rem; }
+.share-msg { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; min-width: 0; }
 
 .seal-plate { background: var(--paper); border: 1px solid var(--paper-line); border-radius: 8px; padding: clamp(18px, 3.5vw, 36px); outline: 1px solid var(--paper-line); outline-offset: -10px; }
 .seal-plate img { display: block; width: 100%; max-width: 420px; height: auto; margin-inline: auto; }
@@ -604,7 +607,7 @@ function showCase(c) {
       '<div class="result-top"><span class="ref">' + esc(c.ref) + '</span><span class="pill st-pending">Pending</span></div>' +
       '<h2 class="case-title">Filing under review</h2>' +
       '<dl class="facts"><div><dt>Type</dt><dd>' + esc(c.type) + '</dd></div><div><dt>Filed</dt><dd>' + esc(c.filed ? fmtDate(c.filed) : 'Not recorded') + '</dd></div></dl>' +
-      '<div class="outcome"><strong>Latest on this case</strong>This filing has been received. A clerk is reviewing it, and the details will be published here once it is approved.</div>';
+      '<div class="outcome"><strong>Latest on this case</strong>This filing has been received. A clerk is reviewing it, and the details will be published here once it is approved.</div>' + shareRow(c.ref);
     return;
   }
   result.innerHTML =
@@ -616,9 +619,23 @@ function showCase(c) {
       '<div><dt>Judge</dt><dd>' + esc(c.judge || 'To be assigned') + '</dd></div>' +
       '<div><dt>' + esc(c.whenLabel || 'Date') + '</dt><dd>' + esc(c.when ? fmtDate(c.when) : 'To be announced') + '</dd></div>' +
     '</dl>' +
-    '<div class="outcome"><strong>Latest on this case</strong>' + esc(c.outcome) + '</div>' +
-    (c.doc ? '<details class="notice"><summary>Read the full notice</summary>' + renderDoc(c.doc) + '</details>' : '');
+    (c.outcome ? '<div class="outcome"><strong>Latest on this case</strong>' + esc(c.outcome) + '</div>' : '') +
+    (Array.isArray(c.doc) && c.doc.length ? '<details class="notice"><summary>Read the full notice</summary>' + renderDoc(c.doc) + '</details>' : '') +
+    shareRow(c.ref);
 }
+function caseLink(ref) { return location.origin + location.pathname + '#' + ref; }
+function shareRow(ref) {
+  return '<div class="share"><button class="btn quiet" type="button" data-copy-ref="' + esc(ref) + '">Copy link to this case</button><span class="share-msg" aria-live="polite"></span></div>';
+}
+result.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-copy-ref]');
+  if (!b) return;
+  var link = caseLink(b.getAttribute('data-copy-ref')), msg = b.parentNode.querySelector('.share-msg');
+  function shown() { msg.textContent = 'Copy this link: ' + link; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function () { msg.textContent = 'Link copied.'; }, shown);
+  } else { shown(); }
+});
 function renderDoc(blocks) {
   var h = '<div class="doc">';
   blocks.forEach(function (b) {
