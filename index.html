@@ -164,6 +164,20 @@ a.btn { text-decoration: none; display: inline-block; }
 .h-title { font-family: var(--display); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
 .h-meta { display: block; margin-top: 2px; font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; }
 .h-when { display: inline-block; margin-top: 6px; font-size: .75rem; font-weight: 600; color: var(--teal); }
+.ev-list { list-style: none; margin: 0 0 28px; padding: 0; }
+.hearings .ev-list { margin: 12px 0 0; }
+.ev-item { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 2px 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+.ev-list .ev-item:last-child { border-bottom: 1px solid var(--line); }
+.ev-mark { width: 1.15rem; height: 1.15rem; margin-top: .22rem; border: 2px solid var(--line-strong); border-radius: 4px; position: relative; flex: none; }
+.ev-mark.progress { border-color: var(--teal); background: linear-gradient(90deg, var(--teal) 50%, transparent 50%); }
+.ev-mark.done { border-color: var(--teal); background: var(--teal); }
+.ev-mark.done::after { content: ""; position: absolute; left: 3px; top: 0; width: 4px; height: 8px; border: solid var(--on-teal); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.ev-body { min-width: 0; }
+.ev-title { font-family: var(--display); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.ev-details { margin: 4px 0 0; color: var(--muted); font-size: .92rem; overflow-wrap: anywhere; white-space: pre-line; }
+.ev-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; font-size: .8rem; color: var(--muted); }
+.ev-meta .late { color: var(--st-open-fg); font-weight: 600; }
+.ev-done-title { color: var(--muted); }
 .st-pending { color: var(--st-dismiss-fg); background: var(--st-dismiss-bg); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .sent { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--line-strong); border-left: 4px solid var(--rib-teal); border-radius: 4px; background: var(--bg); }
@@ -280,6 +294,7 @@ footer { margin-top: 0; }
       <ul>
         <li><a href="#lookup">Case lookup</a></li>
         <li><a href="#cases">Cases</a></li>
+        <li id="nav-events"><a href="#events">Current events</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#bench">Judges &amp; staff</a></li>
         <li><a href="#rules">Laws &amp; rules</a></li>
@@ -339,6 +354,23 @@ footer { margin-top: 0; }
           <h3 id="h-head">Upcoming hearings</h3>
           <p class="hint" id="h-sub">Hearing dates set by the court, soonest first.</p>
           <ol class="h-list" id="h-list"></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="events" hidden>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Current events</h2>
+        <p>What is happening in Narellan right now, and what is planned next.</p>
+      </div>
+      <div class="register">
+        <div class="browse" id="ev-main" aria-live="polite"><p class="hint">Loading events...</p></div>
+        <aside class="hearings" aria-labelledby="ev-done-head">
+          <h3 id="ev-done-head">Done</h3>
+          <p class="hint">Recently completed.</p>
+          <ul class="ev-list" id="ev-done"></ul>
         </aside>
       </div>
     </div>
@@ -814,6 +846,55 @@ $('h-list').addEventListener('click', function (e) {
   var b = e.target.closest('.h-item');
   if (b) openCase(b.getAttribute('data-ref'));
 });
+
+/* ---- current events (managed from the Clerk's Desk) ---- */
+function evDate(iso) { return parseIso(iso).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); }
+function evItem(e, kind) {
+  var meta = '';
+  var today = new Date().toLocaleDateString('en-CA');
+  if (kind === 'done') {
+    meta = '<span>Done ' + esc(new Date(e.updated_at || e.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })) + '</span>';
+  } else {
+    if (e.event_date) meta += '<span>' + esc(evDate(e.event_date)) + '</span>';
+    if (e.event_date && String(e.event_date).slice(0, 10) < today) meta += '<span class="late">Date has passed</span>';
+    if (!e.event_date) meta += '<span>Date to be announced</span>';
+  }
+  if (e.location) meta += '<span>' + esc(e.location) + '</span>';
+  return '<li class="ev-item"><span class="ev-mark ' + (kind === 'done' ? 'done' : kind === 'progress' ? 'progress' : '') + '" aria-hidden="true"></span>' +
+    '<div class="ev-body"><div class="ev-title' + (kind === 'done' ? ' ev-done-title' : '') + '">' + esc(e.title) + '</div>' +
+    (e.details ? '<p class="ev-details">' + esc(e.details) + '</p>' : '') +
+    (meta ? '<div class="ev-meta">' + meta + '</div>' : '') + '</div></li>';
+}
+function renderPublicEvents(list) {
+  function byDate(a, b) { return String(a.event_date || '9999-99-99').localeCompare(String(b.event_date || '9999-99-99')) || (a.id - b.id); }
+  var prog = list.filter(function (e) { return e.status === 'in_progress'; }).sort(byDate);
+  var plan = list.filter(function (e) { return e.status === 'planned'; }).sort(byDate);
+  var done = list.filter(function (e) { return e.status === 'done'; }).sort(function (a, b) { return String(b.updated_at || '').localeCompare(String(a.updated_at || '')); });
+  var h = '';
+  if (prog.length) h += '<p class="group-label">In progress</p><ul class="ev-list">' + prog.map(function (e) { return evItem(e, 'progress'); }).join('') + '</ul>';
+  if (plan.length) h += '<p class="group-label">Planned</p><ul class="ev-list">' + plan.map(function (e) { return evItem(e, 'plan'); }).join('') + '</ul>';
+  if (!h) h = '<p class="empty">Nothing is planned right now. New plans are posted here as they come up.</p>';
+  $('ev-main').innerHTML = h;
+  var shown = done.slice(0, 8);
+  $('ev-done').innerHTML = shown.length
+    ? shown.map(function (e) { return evItem(e, 'done'); }).join('') + (done.length > shown.length ? '<li class="empty">and ' + (done.length - shown.length) + ' more</li>' : '')
+    : '<li class="empty">Nothing has been completed yet.</li>';
+}
+function loadPublicEvents() {
+  if (!DB) { $('nav-events').hidden = true; return; }
+  dbFetch('/rest/v1/events?select=*&order=id.asc&limit=300')
+    .then(function (d) {
+      if (!Array.isArray(d)) throw new Error('bad events');
+      $('events').hidden = false;
+      renderPublicEvents(d);
+    })
+    .catch(function (e) {
+      if (e && e.status === 404) { $('nav-events').hidden = true; return; }
+      $('events').hidden = false;
+      $('ev-main').innerHTML = '<p class="empty">Current events could not be loaded right now. Try again in a moment.</p>';
+    });
+}
+loadPublicEvents();
 
 /* ---- pixel head avatars ---- */
 var HEAD = ['HHHHHHHH', 'HHHHHHHH', 'HSSSSSSH', 'SSSSSSSS', 'SWBSSBWS', 'SSSSSSSS', 'SSSMMSSS', 'SSSSSSSS'];

@@ -90,6 +90,21 @@ textarea { min-height: 96px; resize: vertical; }
 .private dd { margin: 0; overflow-wrap: anywhere; }
 .private pre { margin: 0; font: 400 .85rem/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+.tabs button { appearance: none; background: transparent; border: 0; border-bottom: 3px solid transparent; color: var(--muted); font: 600 .95rem var(--body); padding: 10px 14px; cursor: pointer; margin-bottom: -1px; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--teal); }
+.e-planned { color: var(--st-dismiss-fg); background: var(--st-dismiss-bg); }
+.e-in_progress { color: var(--st-open-fg); background: var(--st-open-bg); }
+.e-done { color: var(--st-done-fg); background: var(--st-done-bg); }
+.ev-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; background: var(--surface); border-top: 1px solid var(--line); padding-right: 12px; }
+.ev-list .ev-row:last-child { border-bottom: 1px solid var(--line); }
+.ev-open { appearance: none; text-align: left; background: transparent; color: var(--ink); border: 0; font: inherit; padding: 12px 14px; cursor: pointer; display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.ev-open:hover { background: var(--bg); }
+.ev-open .t { font-weight: 600; }
+.ev-open .m { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .82rem; color: var(--muted); }
+.ev-row .btn { padding: 6px 12px; font-size: .82rem; }
+.ev-list { display: grid; margin-top: 16px; }
 .foot { padding-block: 24px; color: var(--muted); font-size: .85rem; }
 </style>
 </head>
@@ -125,6 +140,11 @@ textarea { min-height: 96px; resize: vertical; }
     </section>
 
     <section id="desk" hidden>
+      <div class="tabs" role="tablist" aria-label="Desk sections">
+        <button type="button" role="tab" id="tab-cases" aria-selected="true" aria-controls="cases-panel">Cases</button>
+        <button type="button" role="tab" id="tab-events" aria-selected="false" aria-controls="events-panel">Current events</button>
+      </div>
+      <div id="cases-panel" role="tabpanel" aria-labelledby="tab-cases">
       <p class="lede">Filings arrive as pending and stay private. Open one, check it, tidy the wording, then publish it.</p>
       <div class="toolbar">
         <div class="field">
@@ -195,6 +215,48 @@ textarea { min-height: 96px; resize: vertical; }
         </div>
         <small id="ed-link"></small>
       </form>
+      </div>
+
+      <div id="events-panel" role="tabpanel" aria-labelledby="tab-events" hidden>
+        <p class="lede">Things happening in Narellan and things you want to do there. Anything you save here is public straight away on the Current events section of the site.</p>
+        <div class="toolbar">
+          <button class="btn" type="button" id="ev-new">Add an event</button>
+          <button class="btn quiet" type="button" id="ev-refresh">Refresh</button>
+          <span class="msg" id="ev-list-msg" aria-live="polite"></span>
+        </div>
+        <form class="panel editor" id="ev-form" hidden>
+          <h2 id="ev-head">New event</h2>
+          <div class="field">
+            <label for="ev-title">What is it?</label>
+            <input id="ev-title" type="text" maxlength="120" placeholder="e.g. Build the new town hall">
+          </div>
+          <div class="field">
+            <label for="ev-details">Details (optional)</label>
+            <textarea id="ev-details" maxlength="1000" placeholder="Anything people should know: what it is, who is involved, what is needed."></textarea>
+          </div>
+          <div class="pair">
+            <div class="field">
+              <label for="ev-status">Status</label>
+              <select id="ev-status"><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="done">Done</option></select>
+            </div>
+            <div class="field">
+              <label for="ev-date">Date (optional)</label>
+              <input id="ev-date" type="date">
+            </div>
+          </div>
+          <div class="field">
+            <label for="ev-loc">Where in Narellan (optional)</label>
+            <input id="ev-loc" type="text" maxlength="120" placeholder="e.g. Town Square, or X 148 Z -312">
+          </div>
+          <p class="msg" id="ev-msg" role="status" aria-live="polite"></p>
+          <div class="actions">
+            <button class="btn" type="button" id="ev-save">Save</button>
+            <button class="btn quiet" type="button" id="ev-cancel">Cancel</button>
+            <button class="btn danger" type="button" id="ev-delete" hidden>Delete</button>
+          </div>
+        </form>
+        <div class="ev-list" id="ev-list"></div>
+      </div>
     </section>
   </div>
 </main>
@@ -266,7 +328,10 @@ function signOut() {
   session = null;
   try { sessionStorage.removeItem('nfc-clerk'); } catch (e) {}
   current = null; rows = [];
+  events = []; evCurrent = null; evLoaded = false;
   $('editor').hidden = true;
+  $('ev-form').hidden = true;
+  selectTab('cases');
   show('login');
 }
 
@@ -422,6 +487,140 @@ $('new-entry').addEventListener('click', function () {
     })
     .catch(function (e) { say($('list-msg'), 'Could not create an entry: ' + e.message, 'err'); })
     .then(function () { btn.disabled = false; });
+});
+
+/* ---- current events ---- */
+var events = [], evCurrent = null, evLoaded = false, evDeleteArmed = false;
+var EV_LABEL = { planned: 'Planned', in_progress: 'In progress', done: 'Done' };
+var EV_RANK = { in_progress: 0, planned: 1, done: 2 };
+
+function selectTab(name) {
+  var ev = name === 'events';
+  $('tab-cases').setAttribute('aria-selected', String(!ev));
+  $('tab-events').setAttribute('aria-selected', String(ev));
+  $('cases-panel').hidden = ev;
+  $('events-panel').hidden = !ev;
+  if (ev && !evLoaded) loadEvents();
+}
+$('tab-cases').addEventListener('click', function () { selectTab('cases'); });
+$('tab-events').addEventListener('click', function () { selectTab('events'); });
+
+function evSort(a, b) {
+  return (EV_RANK[a.status] - EV_RANK[b.status]) ||
+    String(a.event_date || '9999-99-99').localeCompare(String(b.event_date || '9999-99-99')) ||
+    (a.id - b.id);
+}
+function loadEvents() {
+  say($('ev-list-msg'), 'Loading...');
+  return api('/rest/v1/events?select=*&order=id.asc&limit=500')
+    .then(function (d) { events = d || []; evLoaded = true; say($('ev-list-msg'), ''); renderEvents(); })
+    .catch(function (e) {
+      var hint = /relation|does not exist|schema cache/i.test(e.message) ? ' Run events-setup.sql in Supabase first.' : '';
+      say($('ev-list-msg'), 'Could not load events: ' + e.message + '.' + hint, 'err');
+    });
+}
+function renderEvents() {
+  var box = $('ev-list');
+  if (!events.length) {
+    box.innerHTML = '<p class="msg" style="padding:14px 0;color:var(--muted)">Nothing here yet. Click "Add an event" to start the list.</p>';
+    return;
+  }
+  box.innerHTML = events.slice().sort(evSort).map(function (e) {
+    var meta = '<span class="pill e-' + esc(e.status) + '">' + esc(EV_LABEL[e.status] || e.status) + '</span>' +
+      (e.event_date ? '<span>' + esc(fmtDate(e.event_date)) + '</span>' : '') +
+      (e.location ? '<span>' + esc(e.location) + '</span>' : '');
+    var done = e.status === 'done';
+    return '<div class="ev-row"><button class="ev-open" type="button" data-id="' + e.id + '"><span class="t">' + esc(e.title) + '</span><span class="m">' + meta + '</span></button>' +
+      '<button class="btn quiet ev-toggle" type="button" data-id="' + e.id + '">' + (done ? 'Reopen' : 'Mark done') + '</button></div>';
+  }).join('');
+}
+function resetEvDelete() {
+  evDeleteArmed = false;
+  $('ev-delete').textContent = 'Delete';
+}
+function fillEvForm(e) {
+  evCurrent = e;
+  resetEvDelete();
+  $('ev-head').textContent = e ? 'Edit event' : 'New event';
+  $('ev-title').value = e ? e.title : '';
+  $('ev-details').value = e && e.details ? e.details : '';
+  $('ev-status').value = e ? e.status : 'planned';
+  $('ev-date').value = e && e.event_date ? String(e.event_date).slice(0, 10) : '';
+  $('ev-loc').value = e && e.location ? e.location : '';
+  $('ev-delete').hidden = !e;
+  say($('ev-msg'), '');
+  $('ev-form').hidden = false;
+  $('ev-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('ev-title').focus();
+}
+$('ev-new').addEventListener('click', function () { fillEvForm(null); });
+$('ev-refresh').addEventListener('click', loadEvents);
+$('ev-cancel').addEventListener('click', function () { $('ev-form').hidden = true; evCurrent = null; resetEvDelete(); });
+$('ev-form').addEventListener('submit', function (e) { e.preventDefault(); });
+
+$('ev-list').addEventListener('click', function (e) {
+  var open = e.target.closest('.ev-open'), tog = e.target.closest('.ev-toggle');
+  if (open) {
+    var ev = events.filter(function (x) { return String(x.id) === open.getAttribute('data-id'); })[0];
+    if (ev) fillEvForm(ev);
+  } else if (tog) {
+    var item = events.filter(function (x) { return String(x.id) === tog.getAttribute('data-id'); })[0];
+    if (!item) return;
+    tog.disabled = true;
+    api('/rest/v1/events?id=eq.' + item.id, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ status: item.status === 'done' ? 'planned' : 'done' }) })
+      .then(function (d) {
+        if (!d || !d[0]) throw new Error('Nothing was saved. Your account may not be approved as a clerk.');
+        events = events.map(function (x) { return x.id === d[0].id ? d[0] : x; });
+        if (evCurrent && evCurrent.id === d[0].id) fillEvForm(d[0]);
+        renderEvents();
+      })
+      .catch(function (err) { say($('ev-list-msg'), 'Could not update: ' + err.message, 'err'); tog.disabled = false; });
+  }
+});
+
+$('ev-save').addEventListener('click', function () {
+  var msg = $('ev-msg'), title = $('ev-title').value.trim();
+  if (!title) { say(msg, 'Enter what the event is first.', 'err'); return; }
+  var body = {
+    title: title,
+    details: $('ev-details').value.trim() || null,
+    status: $('ev-status').value,
+    event_date: $('ev-date').value || null,
+    location: $('ev-loc').value.trim() || null
+  };
+  var btn = $('ev-save'); btn.disabled = true; say(msg, 'Saving...');
+  var req = evCurrent
+    ? api('/rest/v1/events?id=eq.' + evCurrent.id, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body) })
+    : api('/rest/v1/events', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body) });
+  req.then(function (d) {
+    if (!d || !d[0]) throw new Error('Nothing was saved. Your account may not be approved as a clerk.');
+    var saved = d[0];
+    var found = events.some(function (x) { return x.id === saved.id; });
+    events = found ? events.map(function (x) { return x.id === saved.id ? saved : x; }) : events.concat([saved]);
+    renderEvents();
+    $('ev-form').hidden = true; evCurrent = null; resetEvDelete();
+    say($('ev-list-msg'), 'Saved. It is now on the public site.', 'ok');
+  }).catch(function (err) { say(msg, 'Could not save: ' + err.message, 'err'); })
+    .then(function () { btn.disabled = false; });
+});
+
+$('ev-delete').addEventListener('click', function () {
+  if (!evCurrent) return;
+  if (!evDeleteArmed) {
+    evDeleteArmed = true;
+    $('ev-delete').textContent = 'Click again to delete for good';
+    return;
+  }
+  var id = evCurrent.id, msg = $('ev-msg');
+  api('/rest/v1/events?id=eq.' + id, { method: 'DELETE', headers: { Prefer: 'return=representation' } })
+    .then(function (d) {
+      if (!d || !d[0]) throw new Error('Nothing was deleted. Your account may not be approved as a clerk.');
+      events = events.filter(function (x) { return x.id !== id; });
+      renderEvents();
+      $('ev-form').hidden = true; evCurrent = null; resetEvDelete();
+      say($('ev-list-msg'), 'Deleted.', 'ok');
+    })
+    .catch(function (err) { resetEvDelete(); say(msg, 'Could not delete: ' + err.message, 'err'); });
 });
 
 /* ---- start ---- */
